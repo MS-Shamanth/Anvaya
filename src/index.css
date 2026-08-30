@@ -1,0 +1,628 @@
+@import 'tailwindcss';
+
+/* ==========================================================================
+   Anvaya design tokens — royal blue + gold.
+   Blues and golds below are sampled directly from Logo.jpeg:
+   navy field #020612 -> #2B3A62, gold #402309 -> #C9A24B -> #ECC17D -> #FFF2BD
+   ========================================================================== */
+@theme {
+  /* --- Ink: the deep navy field the logo sits on --- */
+  --color-ink-950: #04070f;
+  --color-ink-900: #070d1f;
+  --color-ink-850: #0a1330;
+  --color-ink-800: #0e1938;
+  --color-ink-700: #16224a;
+  --color-ink-600: #1e2e5e;
+  --color-ink-500: #2b3a62;
+
+  /* --- Royal blue: brand + interactive --- */
+  --color-royal-900: #0b1b47;
+  --color-royal-800: #10275f;
+  --color-royal-700: #163578;
+  --color-royal-600: #1d4392;
+  --color-royal-500: #2554ae;
+  --color-royal-400: #3b6fd0;
+  --color-royal-300: #6b95e4;
+  --color-royal-200: #a8c1f2;
+
+  /* --- Gold: the monogram --- */
+  --color-gold-900: #402309;
+  --color-gold-800: #6b4a18;
+  --color-gold-700: #8a6a28;
+  --color-gold-600: #a98436;
+  --color-gold-500: #c9a24b;
+  --color-gold-400: #d9b45f;
+  --color-gold-300: #e9c37a;
+  --color-gold-200: #f2d79c;
+  --color-gold-100: #fff2bd;
+
+  /* --- Neutrals tuned for legibility on ink --- */
+  --color-ivory: #f8f6f1;
+  --color-parchment: #ece7dc;
+  --color-mist-100: #eef2fa;
+  --color-mist-200: #cfd8ea;
+  --color-mist-300: #a9b4ce;
+  --color-mist-400: #77839f;
+  --color-mist-500: #556180;
+
+  /* --- Semantic --- */
+  --color-verify-deep: #0f3d2e;
+  --color-verify: #1d7a5b;
+  --color-verify-light: #4cc79b;
+  --color-urgent-deep: #5c2314;
+  --color-urgent: #b4472a;
+  --color-urgent-light: #e4794f;
+
+  /* --- Type --- */
+  --font-display: 'Cormorant Garamond', 'Georgia', 'Times New Roman', serif;
+  --font-sans: 'Inter', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+
+  /* --- Elevation --- */
+  --shadow-plate: 0 1px 0 0 rgb(255 255 255 / 0.04) inset, 0 18px 40px -24px rgb(2 6 18 / 0.9);
+  --shadow-lift: 0 28px 60px -28px rgb(2 6 18 / 0.95);
+  --shadow-gold: 0 10px 30px -12px rgb(201 162 75 / 0.35);
+
+  --radius-plate: 0.875rem;
+}
+
+/* ==========================================================================
+   Base
+   ========================================================================== */
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    margin: 0;
+    background-color: var(--color-ink-900);
+    color: var(--color-mist-100);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    /* Soft royal-blue light fall, echoing the top-left highlight in the logo */
+    background-image:
+      radial-gradient(1100px 620px at 12% -8%, rgb(43 58 98 / 0.55), transparent 62%),
+      radial-gradient(900px 520px at 92% 4%, rgb(22 53 120 / 0.32), transparent 60%);
+    background-attachment: fixed;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    font-family: var(--font-display);
+    font-weight: 400;
+    letter-spacing: 0.01em;
+  }
+
+  /* Visible, on-brand focus ring for keyboard users. */
+  :focus-visible {
+    outline: 2px solid var(--color-gold-400);
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+
+  ::selection {
+    background: var(--color-gold-500);
+    color: var(--color-ink-950);
+  }
+
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+  ::-webkit-scrollbar-track {
+    background: var(--color-ink-950);
+  }
+  ::-webkit-scrollbar-thumb {
+    background: var(--color-ink-600);
+    border-radius: 99px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: var(--color-royal-700);
+  }
+}
+
+/* ==========================================================================
+   Brand utilities
+   ========================================================================== */
+@utility text-gilded {
+  background-image: linear-gradient(
+    100deg,
+    var(--color-gold-700) 0%,
+    var(--color-gold-300) 34%,
+    var(--color-gold-100) 50%,
+    var(--color-gold-400) 68%,
+    var(--color-gold-700) 100%
+  );
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+}
+
+@utility bg-gilded {
+  background-image: linear-gradient(
+    100deg,
+    var(--color-gold-700) 0%,
+    var(--color-gold-400) 30%,
+    var(--color-gold-200) 50%,
+    var(--color-gold-400) 70%,
+    var(--color-gold-700) 100%
+  );
+}
+
+/* Frosted navy panel with a gold hairline — the app's primary surface. */
+@utility plate {
+  background-image: linear-gradient(
+    170deg,
+    rgb(30 46 94 / 0.42) 0%,
+    rgb(10 19 48 / 0.72) 55%,
+    rgb(7 13 31 / 0.85) 100%
+  );
+  border: 1px solid rgb(201 162 75 / 0.16);
+  border-radius: var(--radius-plate);
+  box-shadow: var(--shadow-plate);
+  backdrop-filter: blur(10px);
+}
+
+@utility hairline {
+  border-color: rgb(201 162 75 / 0.18);
+}
+
+@utility rule-gold {
+  background-image: linear-gradient(
+    90deg,
+    transparent,
+    rgb(201 162 75 / 0.55) 22%,
+    rgb(255 242 189 / 0.85) 50%,
+    rgb(201 162 75 / 0.55) 78%,
+    transparent
+  );
+}
+
+@utility tracked {
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+}
+
+@utility no-spin {
+  &::-webkit-outer-spin-button,
+  &::-webkit-inner-spin-button {
+    appearance: none;
+    margin: 0;
+  }
+  appearance: textfield;
+}
+
+@keyframes anvaya-rise {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@utility rise {
+  animation: anvaya-rise 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ==========================================================================
+   Atmosphere — aurora field, grain, cursor light, grid
+   ========================================================================== */
+:root {
+  --cursor-x: 50vw;
+  --cursor-y: 30vh;
+  --anvaya-grid: linear-gradient(rgb(201 162 75 / 0.045) 1px, transparent 1px),
+    linear-gradient(90deg, rgb(201 162 75 / 0.045) 1px, transparent 1px);
+}
+
+.aurora-blob {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(90px);
+  will-change: transform;
+}
+
+.aurora-blob--royal {
+  top: -22vh;
+  left: -12vw;
+  width: 60vw;
+  height: 60vw;
+  background: radial-gradient(circle, rgb(37 84 174 / 0.5), transparent 68%);
+  animation: drift-a 26s ease-in-out infinite alternate;
+}
+
+.aurora-blob--gold {
+  top: 8vh;
+  right: -16vw;
+  width: 48vw;
+  height: 48vw;
+  background: radial-gradient(circle, rgb(201 162 75 / 0.24), transparent 66%);
+  animation: drift-b 32s ease-in-out infinite alternate;
+}
+
+.aurora-blob--deep {
+  bottom: -30vh;
+  left: 22vw;
+  width: 66vw;
+  height: 52vw;
+  background: radial-gradient(circle, rgb(11 27 71 / 0.72), transparent 70%);
+  animation: drift-c 38s ease-in-out infinite alternate;
+}
+
+.aurora-blob--ember {
+  top: 46vh;
+  left: 38vw;
+  width: 32vw;
+  height: 32vw;
+  background: radial-gradient(circle, rgb(233 195 122 / 0.16), transparent 64%);
+  animation: drift-b 22s ease-in-out infinite alternate-reverse;
+}
+
+@keyframes drift-a {
+  from {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  to {
+    transform: translate3d(9vw, 7vh, 0) scale(1.14);
+  }
+}
+
+@keyframes drift-b {
+  from {
+    transform: translate3d(0, 0, 0) scale(1.05);
+  }
+  to {
+    transform: translate3d(-8vw, 10vh, 0) scale(0.9);
+  }
+}
+
+@keyframes drift-c {
+  from {
+    transform: translate3d(0, 0, 0) scale(0.95);
+  }
+  to {
+    transform: translate3d(6vw, -8vh, 0) scale(1.18);
+  }
+}
+
+.grain-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  pointer-events: none;
+  opacity: 0.05;
+  mix-blend-mode: overlay;
+}
+
+.cursor-spotlight {
+  position: fixed;
+  inset: 0;
+  z-index: 30;
+  pointer-events: none;
+  background: radial-gradient(
+    460px circle at var(--cursor-x) var(--cursor-y),
+    rgb(233 195 122 / 0.09),
+    rgb(37 84 174 / 0.05) 42%,
+    transparent 68%
+  );
+  transition: opacity 400ms ease;
+}
+
+/* ==========================================================================
+   Tilt surfaces
+   ========================================================================== */
+.tilt-surface {
+  --tilt-x: 0deg;
+  --tilt-y: 0deg;
+  --glow-x: 50%;
+  --glow-y: 50%;
+  --glow-o: 0;
+  position: relative;
+  height: 100%;
+  transform: rotateX(var(--tilt-x)) rotateY(var(--tilt-y));
+  transform-style: preserve-3d;
+  transition:
+    transform 320ms cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 320ms ease;
+  will-change: transform;
+}
+
+.tilt-surface:hover {
+  box-shadow: var(--shadow-lift);
+}
+
+.tilt-sheen {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  opacity: var(--glow-o);
+  transition: opacity 300ms ease;
+  background: radial-gradient(
+    340px circle at var(--glow-x) var(--glow-y),
+    rgb(255 242 189 / 0.16),
+    rgb(107 149 228 / 0.07) 40%,
+    transparent 66%
+  );
+}
+
+/* ==========================================================================
+   Monogram
+   ========================================================================== */
+@keyframes monogram-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.monogram-ring {
+  animation: monogram-spin 34s linear infinite;
+}
+
+/*
+ * Draw-on for the monogram. Every path declares pathLength="100", so a single
+ * dasharray of 100 traces each stroke evenly no matter its true length.
+ * Delays follow the order a hand would draw it: A stem, the shared A/V stroke,
+ * the two serifs, then the swash as the final flourish.
+ */
+@keyframes monogram-draw {
+  from {
+    stroke-dashoffset: 100;
+    opacity: 0;
+  }
+  25% {
+    opacity: 1;
+  }
+  to {
+    stroke-dashoffset: 0;
+    opacity: 1;
+  }
+}
+
+.monogram-draw path {
+  stroke-dasharray: 100;
+  animation: monogram-draw 1.5s cubic-bezier(0.62, 0.02, 0.35, 1) both;
+}
+.monogram-draw path:nth-child(2) {
+  animation-delay: 0.42s;
+  animation-duration: 1.7s;
+}
+.monogram-draw path:nth-child(3) {
+  animation-delay: 1.15s;
+  animation-duration: 0.5s;
+}
+.monogram-draw path:nth-child(4) {
+  animation-delay: 1.75s;
+  animation-duration: 0.5s;
+}
+.monogram-draw path:nth-child(5) {
+  animation-delay: 1.95s;
+  animation-duration: 1.1s;
+}
+
+/* ==========================================================================
+   Product plates
+   ========================================================================== */
+@keyframes plate-breathe {
+  0%,
+  100% {
+    opacity: 0.82;
+    transform: translateY(0) scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: translateY(-2px) scale(1.018);
+  }
+}
+
+.plate-glyph {
+  transform-origin: 100px 100px;
+  animation: plate-breathe 7s ease-in-out infinite;
+  filter: drop-shadow(0 0 8px rgb(201 162 75 / 0.35));
+}
+
+/* ==========================================================================
+   Marquee
+   ========================================================================== */
+@keyframes marquee-slide {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-100%);
+  }
+}
+
+.marquee-mask {
+  mask-image: linear-gradient(
+    90deg,
+    transparent,
+    black 12%,
+    black 88%,
+    transparent
+  );
+}
+
+/* ==========================================================================
+   Shimmer, shine, and pulse accents
+   ========================================================================== */
+@keyframes shimmer-sweep {
+  from {
+    background-position: -220% 0;
+  }
+  to {
+    background-position: 220% 0;
+  }
+}
+
+@utility shimmer {
+  background-image: linear-gradient(
+    100deg,
+    var(--color-gold-700) 0%,
+    var(--color-gold-400) 34%,
+    #fffdf2 50%,
+    var(--color-gold-400) 66%,
+    var(--color-gold-700) 100%
+  );
+  background-size: 220% 100%;
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+  animation: shimmer-sweep 5.5s linear infinite;
+}
+
+@keyframes button-shine {
+  from {
+    transform: translateX(-140%) skewX(-18deg);
+  }
+  to {
+    transform: translateX(260%) skewX(-18deg);
+  }
+}
+
+@keyframes soft-pulse {
+  0%,
+  100% {
+    opacity: 0.45;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.35);
+  }
+}
+
+@utility pulse-dot {
+  animation: soft-pulse 2.4s ease-in-out infinite;
+}
+
+@keyframes float-slow {
+  0%,
+  100% {
+    transform: translateY(0) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-12px) rotate(1.5deg);
+  }
+}
+
+@utility floaty {
+  animation: float-slow 9s ease-in-out infinite;
+}
+
+@keyframes ring-expand {
+  from {
+    transform: scale(0.72);
+    opacity: 0.75;
+  }
+  to {
+    transform: scale(1.85);
+    opacity: 0;
+  }
+}
+
+@utility halo-ring {
+  animation: ring-expand 2.8s ease-out infinite;
+}
+
+/* Gilded button with a light sweeping across it on hover. */
+@utility btn-gold {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+  background-image: linear-gradient(
+    100deg,
+    var(--color-gold-700) 0%,
+    var(--color-gold-500) 26%,
+    var(--color-gold-300) 52%,
+    var(--color-gold-500) 76%,
+    var(--color-gold-700) 100%
+  );
+  color: var(--color-ink-950);
+  box-shadow: var(--shadow-gold);
+
+  &::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    width: 40%;
+    background: linear-gradient(90deg, transparent, rgb(255 255 255 / 0.6), transparent);
+    transform: translateX(-140%) skewX(-18deg);
+  }
+
+  &:hover::after {
+    animation: button-shine 900ms ease-out;
+  }
+}
+
+/* Hairline-outlined button that fills with royal blue on hover. */
+@utility btn-ghost {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid rgb(201 162 75 / 0.35);
+  color: var(--color-gold-200);
+  background-color: rgb(10 19 48 / 0.5);
+  transition:
+    border-color 260ms ease,
+    color 260ms ease,
+    background-color 260ms ease,
+    box-shadow 260ms ease;
+
+  &:hover {
+    border-color: rgb(233 195 122 / 0.85);
+    color: var(--color-gold-100);
+    background-color: rgb(22 53 120 / 0.55);
+    box-shadow: 0 0 0 1px rgb(233 195 122 / 0.2), 0 14px 32px -18px rgb(233 195 122 / 0.5);
+  }
+}
+
+/* Card that lifts and gilds its border on hover. */
+@utility lift {
+  transition:
+    transform 420ms cubic-bezier(0.22, 1, 0.36, 1),
+    border-color 420ms ease,
+    box-shadow 420ms ease;
+
+  &:hover {
+    transform: translateY(-6px);
+    border-color: rgb(233 195 122 / 0.42);
+    box-shadow: var(--shadow-lift);
+  }
+}
+
+/* Animated underline for text links. */
+@utility link-gold {
+  position: relative;
+
+  &::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    bottom: -3px;
+    height: 1px;
+    width: 100%;
+    background-image: linear-gradient(90deg, var(--color-gold-500), var(--color-gold-200));
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 380ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  &:hover::after {
+    transform: scaleX(1);
+  }
+}
