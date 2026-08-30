@@ -1,0 +1,13 @@
+# Normalise line endings in the repository so clones on Windows, macOS and
+# Linux don't produce whole-file diffs.
+* text=auto
+
+# Treat catalogue photography and the logo as binary.
+*.jpg   binary
+*.jpeg  binary
+*.png   binary
+*.webp  binary
+*.ico   binary
+
+# Lockfiles are generated; keep them out of diff review noise.
+package-lock.json -diff linguist-generated
