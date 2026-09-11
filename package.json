@@ -8,19 +8,37 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "typecheck": "tsc -b --noEmit",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "server": "tsx watch server/src/server.ts",
+    "server:build": "tsc -p server/tsconfig.json",
+    "start:server": "node server/dist/server.js",
+    "dev:all": "concurrently \"npm run dev\" \"npm run server\" --names \"frontend,backend\" --prefix-colors \"cyan,magenta\""
   },
   "dependencies": {
+    "argon2": "^0.45.1",
+    "cookie-parser": "^1.4.7",
+    "cors": "^2.8.6",
+    "dotenv": "^17.4.2",
+    "express": "^5.2.1",
+    "express-session": "^1.19.0",
     "react": "19.2.8",
     "react-dom": "19.2.8",
     "react-router-dom": "7.18.3"
   },
   "devDependencies": {
     "@tailwindcss/vite": "4.3.3",
+    "@types/cookie-parser": "^1.4.10",
+    "@types/cors": "^2.8.19",
+    "@types/express": "^5.0.6",
+    "@types/express-session": "^1.19.0",
+    "@types/node": "^22.20.2",
     "@types/react": "19.2.18",
     "@types/react-dom": "19.2.5",
     "@vitejs/plugin-react": "6.1.1",
+    "concurrently": "^10.0.5",
+    "nodemon": "^3.1.14",
     "tailwindcss": "4.3.3",
+    "tsx": "^4.23.13",
     "typescript": "5.9.3",
     "vite": "8.2.2"
   }

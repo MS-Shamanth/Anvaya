@@ -55,6 +55,11 @@ function AccountMenu() {
 
   if (!user) return null;
 
+  const handleSignOut = async () => {
+    await signOut();
+    navigate('/');
+  };
+
   return (
     <div className="relative" onClick={(event) => event.stopPropagation()}>
       <button
@@ -99,10 +104,7 @@ function AccountMenu() {
           </button>
           <button
             role="menuitem"
-            onClick={() => {
-              signOut();
-              navigate('/');
-            }}
+            onClick={handleSignOut}
             className="text-mist-300 hover:bg-ink-700/60 hover:text-urgent-light w-full rounded-md px-3 py-2.5 text-left text-[0.78rem] transition-colors"
           >
             Sign out

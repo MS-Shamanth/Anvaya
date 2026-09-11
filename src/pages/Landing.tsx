@@ -1,6 +1,5 @@
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import type { Role } from '../types';
-import { useAuth } from '../context/AuthContext';
 import { useStore } from '../context/StoreContext';
 import { inventoryHealth, priceGuidance } from '../lib/ai';
 import { money, moneyCompact } from '../lib/format';
@@ -128,19 +127,12 @@ const PALETTE = [
 ];
 
 function Hero() {
-  const navigate = useNavigate();
-  const { signInAs } = useAuth();
   const typed = useTypewriter([
     'excess inventory',
     'returned stock',
     'aging luxury',
     'unsold couture',
   ]);
-
-  const enter = (role: Role) => {
-    signInAs(role);
-    navigate(role === 'buyer' ? '/browse' : role === 'seller' ? '/seller' : '/upcycler');
-  };
 
   return (
     <section className="relative flex min-h-dvh items-center overflow-hidden pt-24 pb-16">
@@ -194,24 +186,16 @@ function Hero() {
           </Reveal>
 
           <Reveal delay={1000}>
-            <div className="mt-10 flex flex-wrap items-center justify-center gap-3">
-              <Button variant="gold" size="lg" onClick={() => enter('buyer')}>
-                Enter as buyer
-              </Button>
-              <Button variant="ghost" size="lg" onClick={() => enter('seller')}>
-                Enter as seller
-              </Button>
-              <Button variant="ghost" size="lg" onClick={() => enter('upcycler')}>
-                Enter as upcycler
-              </Button>
-            </div>
-            <p className="text-mist-500 mt-5 text-[0.68rem]">
-              Three logins, no password. Or{' '}
-              <Link to="/enter" className="link-gold text-gold-300">
-                pick an account
+            <div className="mt-10">
+              <Link to="/enter">
+                <Button variant="gold" size="lg">
+                  Enter the exchange
+                </Button>
               </Link>
-              .
-            </p>
+              <p className="text-mist-500 mt-5 text-[0.68rem]">
+                Sign in with your credentials to access the platform.
+              </p>
+            </div>
           </Reveal>
         </div>
 
@@ -254,14 +238,6 @@ function Hero() {
 }
 
 function RoleSection() {
-  const navigate = useNavigate();
-  const { signInAs } = useAuth();
-
-  const enter = (role: Role) => {
-    signInAs(role);
-    navigate(role === 'buyer' ? '/browse' : role === 'seller' ? '/seller' : '/upcycler');
-  };
-
   return (
     <section id="roles" className="mx-auto max-w-[1400px] px-5 py-28 sm:px-8">
       <Reveal>
@@ -301,12 +277,12 @@ function RoleSection() {
                   ))}
                 </ul>
 
-                <button
-                  onClick={() => enter(card.role)}
-                  className="btn-ghost mt-7 w-full rounded-full py-3 text-[0.7rem] tracking-[0.18em] uppercase"
+                <Link
+                  to="/enter"
+                  className="btn-ghost mt-7 block w-full rounded-full py-3 text-center text-[0.7rem] tracking-[0.18em] uppercase"
                 >
-                  Enter as {card.title.toLowerCase()}
-                </button>
+                  Sign in
+                </Link>
               </div>
             </Tilt>
           </Reveal>

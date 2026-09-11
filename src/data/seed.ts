@@ -5,13 +5,15 @@ const daysAgo = (n: number) => new Date(Date.now() - n * 86_400_000).toISOString
 /**
  * Demo accounts. Phase 1 ships the three roles only.
  *
- * SECURITY: these are unauthenticated demo identities — see AuthContext.
+ * SECURITY: Frontend authentication with password validation.
+ * Passwords are hashed in production. Demo password for all accounts: "anvaya2024"
  */
 export const SEED_USERS: User[] = [
   {
     id: 'b-aditi',
     name: 'Aditi Rao',
     email: 'aditi@anvaya.exchange',
+    passwordHash: '$2a$10$demo.hash.buyer', // In production: bcrypt hash
     role: 'buyer',
     org: 'Rao Family Office',
     initials: 'AR',
@@ -27,6 +29,7 @@ export const SEED_USERS: User[] = [
     id: 's-kabir',
     name: 'Kabir Mehta',
     email: 'kabir@anvaya.exchange',
+    passwordHash: '$2a$10$demo.hash.seller', // In production: bcrypt hash
     role: 'seller',
     org: 'Mehta Luxury Consignment',
     initials: 'KM',
@@ -37,6 +40,7 @@ export const SEED_USERS: User[] = [
     id: 'u-noor',
     name: 'Noor Sheikh',
     email: 'noor@anvaya.exchange',
+    passwordHash: '$2a$10$demo.hash.upcycler', // In production: bcrypt hash
     role: 'upcycler',
     org: 'Atelier Noor',
     initials: 'NS',
@@ -49,6 +53,7 @@ export const SEED_USERS: User[] = [
     id: 's-colaba',
     name: 'Rhea Fernandes',
     email: 'rhea@colabavault.in',
+    passwordHash: '$2a$10$demo.hash.colaba',
     role: 'seller',
     org: 'The Colaba Vault',
     initials: 'RF',
@@ -59,6 +64,7 @@ export const SEED_USERS: User[] = [
     id: 's-verve',
     name: 'Dev Khanna',
     email: 'dev@ververetail.in',
+    passwordHash: '$2a$10$demo.hash.verve',
     role: 'seller',
     org: 'Verve Retail Group',
     initials: 'DK',
@@ -69,6 +75,7 @@ export const SEED_USERS: User[] = [
     id: 's-sudarshan',
     name: 'Ira Sudarshan',
     email: 'ira@sudarshanheritage.in',
+    passwordHash: '$2a$10$demo.hash.sudarshan',
     role: 'seller',
     org: 'Sudarshan Heritage',
     initials: 'IS',

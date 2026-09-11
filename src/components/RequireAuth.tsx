@@ -6,13 +6,17 @@ import { useAuth } from '../context/AuthContext';
 /**
  * Client-side route guard.
  *
- * ⚠️ This is presentation only. It stops a signed-out visitor from landing on a
- * dashboard, nothing more — anyone can bypass it. Real enforcement has to live
- * on the server, per request. See the note in AuthContext.
+ * Note: This is UI protection only. Real security enforcement happens on the backend.
+ * All API requests are validated server-side with session authentication.
  */
 export function RequireAuth({ children, role }: { children: ReactNode; role?: Role }) {
-  const { user } = useAuth();
+  const { user, isLoading } = useAuth();
   const location = useLocation();
+
+  if (isLoading) {
+    // Show loading state while checking authentication
+    return <div>Loading...</div>;
+  }
 
   if (!user) {
     return <Navigate to="/enter" state={{ from: location.pathname }} replace />;

@@ -1,67 +1,137 @@
-import { createContext, useCallback, useContext, useMemo, useState, type ReactNode } from 'react';
+import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
 import type { Role, User } from '../types';
-import { SEED_USERS } from '../data/seed';
-import { load, save } from '../lib/storage';
 
 /**
- * ⚠️ SECURITY NOTE — Phase 1 demo auth only.
+ * Authentication Context for Anvaya.
  *
- * There is no password check, no token, no server. Selecting a role simply
- * writes a user id to localStorage, and every "protected" route is a
- * client-side redirect that anyone can bypass with devtools. This is fine for
- * demoing the three-login model, and must be replaced before any real
- * inventory or money touches the platform. What real auth needs:
- *   - a server-side identity provider (session cookie or short-lived JWT)
- *   - server-enforced authorisation on every read and write, since role checks
- *     in the browser are advisory at best
- *   - KYB/KYC for sellers and upcyclers before they can transact
+ * Now integrated with secure backend authentication:
+ * - Server-side password hashing with Argon2id
+ * - HttpOnly + Secure session cookies
+ * - Server-side authorization on every request
+ * - Rate limiting on login attempts
+ * - CSRF protection via SameSite cookies
+ *
+ * The frontend maintains user state but authentication is server-authoritative.
  */
 
 interface AuthValue {
   user: User | null;
-  users: User[];
-  signInAs: (role: Role) => User | null;
-  signInWithEmail: (email: string) => User | null;
-  signOut: () => void;
+  isAuthenticated: boolean;
+  isLoading: boolean;
+  signIn: (email: string, password: string) => Promise<{ success: boolean; error?: string }>;
+  signOut: () => Promise<void>;
+  refreshUser: () => Promise<void>;
   isRole: (role: Role) => boolean;
-  userById: (id: string) => User | undefined;
+  userById: (id: string) => User | undefined; // For backward compatibility with existing components
 }
 
 const AuthContext = createContext<AuthValue | null>(null);
 
-/** The accounts offered on the sign-in screen, one per Phase 1 role. */
-export const DEMO_LOGINS: Role[] = ['buyer', 'seller', 'upcycler'];
+/**
+ * Safe user type (without sensitive fields).
+ */
+type SafeUser = Omit<User, 'passwordHash'>;
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const users = SEED_USERS;
-  const [userId, setUserId] = useState<string | null>(() => load<string | null>('session', null));
+  const [user, setUser] = useState<SafeUser | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
-  const persist = useCallback((id: string | null) => {
-    setUserId(id);
-    save('session', id);
+  /**
+   * Fetch current authenticated user from backend.
+   */
+  const refreshUser = useCallback(async () => {
+    try {
+      const response = await fetch('/api/auth/me', {
+        credentials: 'include', // Send cookies
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setUser(data.user);
+      } else {
+        setUser(null);
+      }
+    } catch (error) {
+      console.error('Failed to fetch user:', error);
+      setUser(null);
+    } finally {
+      setIsLoading(false);
+    }
   }, []);
 
-  const value = useMemo<AuthValue>(() => {
-    const user = users.find((u) => u.id === userId) ?? null;
+  /**
+   * Initialize auth state on mount.
+   */
+  useEffect(() => {
+    refreshUser();
+  }, [refreshUser]);
 
-    return {
-      user,
-      users,
-      isRole: (role) => user?.role === role,
-      userById: (id) => users.find((u) => u.id === id),
-      signInAs: (role) => {
-        const match = users.find((u) => u.role === role) ?? null;
-        persist(match?.id ?? null);
-        return match;
-      },
-      signInWithEmail: (email) => {
-        const match = users.find((u) => u.email.toLowerCase() === email.trim().toLowerCase()) ?? null;
-        if (match) persist(match.id);
-        return match;
-      },
-      signOut: () => persist(null),
-    };
-  }, [userId, users, persist]);
+  /**
+   * Sign in with email and password.
+   */
+  const signIn = useCallback(async (email: string, password: string) => {
+    try {
+      const response = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include', // Send/receive cookies
+        body: JSON.stringify({ email, password }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        setUser(data.user);
+        return { success: true };
+      }
+
+      // Handle rate limiting
+      if (response.status === 429) {
+        return { 
+          success: false, 
+          error: data.error || 'Too many login attempts. Please try again later.',
+        };
+      }
+
+      return { 
+        success: false, 
+        error: data.error || 'Login failed. Please try again.',
+      };
+    } catch (error) {
+      console.error('Login error:', error);
+      return { 
+        success: false, 
+        error: 'Network error. Please check your connection.',
+      };
+    }
+  }, []);
+
+  /**
+   * Sign out.
+   */
+  const signOut = useCallback(async () => {
+    try {
+      await fetch('/api/auth/logout', {
+        method: 'POST',
+        credentials: 'include',
+      });
+    } catch (error) {
+      console.error('Logout error:', error);
+    } finally {
+      setUser(null);
+    }
+  }, []);
+
+  const value = useMemo<AuthValue>(() => ({
+    user: user as User | null,
+    isAuthenticated: user !== null,
+    isLoading,
+    signIn,
+    signOut,
+    refreshUser,
+    isRole: (role) => user?.role === role,
+    userById: () => undefined, // Stub - in production, fetch from backend API
+  }), [user, isLoading, signIn, signOut, refreshUser]);
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }

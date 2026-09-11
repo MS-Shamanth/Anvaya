@@ -13,6 +13,7 @@ export interface User {
   id: string;
   name: string;
   email: string;
+  passwordHash: string;
   role: Role;
   /** Company, maison, or atelier the account trades under. */
   org: string;
