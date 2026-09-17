@@ -1,26 +1,40 @@
 /**
  * GET /api/health
  *
- * Cheap way to confirm the serverless backend is actually deployed. If this
- * returns JSON but sign-in reports a network error, the problem is in the auth
- * call, not in routing. Reports only whether SESSION_SECRET is configured,
- * never its value.
+ * Cheap way to confirm the serverless backend is actually deployed and running.
+ * JSON here plus a failing sign-in means the problem is credentials or rate
+ * limiting; HTML here means the functions were never built.
+ *
+ * Self-contained on purpose — see the note at the top of api/auth.ts.
  */
 
-import { methodNotAllowed, sendJson, type ApiRequest, type ApiResponse } from './_lib/http';
+import type { IncomingMessage, ServerResponse } from 'node:http';
 
-export default function handler(req: ApiRequest, res: ApiResponse): void {
+export default function handler(
+  req: IncomingMessage,
+  res: ServerResponse<IncomingMessage>,
+): void {
   if (req.method !== 'GET') {
-    methodNotAllowed(res, ['GET']);
+    res.setHeader('Allow', 'GET');
+    res.statusCode = 405;
+    res.setHeader('Content-Type', 'application/json; charset=utf-8');
+    res.end(JSON.stringify({ error: 'Method not allowed' }));
     return;
   }
 
-  sendJson(res, 200, {
-    status: 'ok',
-    runtime: 'serverless',
-    sessionSecretConfigured: Boolean(
-      process.env.SESSION_SECRET && process.env.SESSION_SECRET.length >= 32,
-    ),
-    timestamp: new Date().toISOString(),
-  });
+  res.statusCode = 200;
+  res.setHeader('Content-Type', 'application/json; charset=utf-8');
+  res.setHeader('Cache-Control', 'no-store');
+  res.end(
+    JSON.stringify({
+      status: 'ok',
+      runtime: 'serverless',
+      // Reports only whether the secret is configured, never its value.
+      sessionSecretConfigured: Boolean(
+        process.env.SESSION_SECRET && process.env.SESSION_SECRET.length >= 32,
+      ),
+      nodeVersion: process.version,
+      timestamp: new Date().toISOString(),
+    }),
+  );
 }

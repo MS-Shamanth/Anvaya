@@ -36,6 +36,14 @@ const AuthContext = createContext<AuthValue | null>(null);
 const REQUEST_TIMEOUT_MS = 15_000;
 
 /**
+ * All auth actions are served by one function at /api/auth (see api/auth.ts).
+ * Calling it with ?action=… hits the function's own path, so it does not depend on
+ * a rewrite or a dynamic route segment resolving correctly on the host.
+ */
+const authUrl = (action: 'login' | 'logout' | 'me' | 'forgot-password' | 'reset-password') =>
+  `/api/auth?action=${action}`;
+
+/**
  * Public directory of accounts trading on the exchange. Display metadata only —
  * no credentials — used to attribute listings to a house. Authentication never
  * reads from here; that is the backend's job.
@@ -58,13 +66,14 @@ function errorFrom(payload: Record<string, unknown> | null, status: number): str
     return payload.error;
   }
 
-  // A non-JSON body means the request never reached the auth backend — almost
-  // always a missing/misrouted deployment rather than a credentials problem.
+  // No JSON body means the request never reached our handler — a missing or
+  // crashed deployment rather than a credentials problem. Say which, because the
+  // fix is completely different.
   if (status === 404 || status === 405) {
-    return 'Sign-in service was not found at /api/auth/login. The backend is not deployed for this build.';
+    return 'Sign-in service was not found at /api/auth. The backend is not deployed for this build.';
   }
   if (status >= 500) {
-    return `Sign-in service error (HTTP ${status}). Please try again in a moment.`;
+    return `The sign-in function failed to run (HTTP ${status}). Check the deployment's runtime logs.`;
   }
   return `Sign-in failed (HTTP ${status}).`;
 }
@@ -85,7 +94,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   /** Restores session state from the session cookie. */
   const refreshUser = useCallback(async () => {
     try {
-      const response = await fetchWithTimeout('/api/auth/me', { credentials: 'include' });
+      const response = await fetchWithTimeout(authUrl('me'), { credentials: 'include' });
 
       if (response.ok) {
         const data = await readJson(response);
@@ -108,7 +117,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const signIn = useCallback(async (email: string, password: string): Promise<SignInResult> => {
     try {
-      const response = await fetchWithTimeout('/api/auth/login', {
+      const response = await fetchWithTimeout(authUrl('login'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
         credentials: 'include',
@@ -144,7 +153,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const signOut = useCallback(async () => {
     try {
-      await fetchWithTimeout('/api/auth/logout', { method: 'POST', credentials: 'include' });
+      await fetchWithTimeout(authUrl('logout'), { method: 'POST', credentials: 'include' });
     } catch {
       // Clearing local state matters more than the round trip succeeding.
     } finally {

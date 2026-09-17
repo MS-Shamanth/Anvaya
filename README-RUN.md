@@ -7,7 +7,7 @@ npm run dev
 ```
 
 One command, one port. The auth API in `api/` is mounted straight into the Vite dev
-server, so `/api/auth/*` works with nothing else running — the same handlers Vercel
+server, so `/api/auth` works with nothing else running — the same function Vercel
 runs in production (see [DEPLOYMENT.md](DEPLOYMENT.md)).
 
 ### Optional: use the Express backend instead
@@ -82,6 +82,12 @@ Backend runs on: http://localhost:3001
 
 ### Test Login
 ```bash
+# Serverless function (npm run dev, and Vercel)
+curl -i -X POST "http://localhost:5173/api/auth?action=login" \
+  -H "Content-Type: application/json" \
+  -d '{"email":"kabir@anvaya.exchange","password":"anvaya2024"}'
+
+# Express backend (npm run dev:express)
 curl -X POST http://localhost:3001/api/auth/login \
   -H "Content-Type: application/json" \
   -d '{"email":"kabir@anvaya.exchange","password":"anvaya2024"}'
@@ -89,7 +95,7 @@ curl -X POST http://localhost:3001/api/auth/login \
 
 ### Test Current User (requires session cookie)
 ```bash
-curl http://localhost:3001/api/auth/me \
+curl "http://localhost:5173/api/auth?action=me" \
   -H "Cookie: anvaya.sid=<your-session-cookie>"
 ```
 
@@ -139,7 +145,7 @@ Anvaya/
 **Check**: Backend logs - any errors?
 
 ### "Could not reach the sign-in service" / "Network error"
-The browser could not get a JSON response from `/api/auth/login`.
+The browser could not get a JSON response from `/api/auth?action=login`.
 
 **Check**: open `/api/health` in the same origin you are using.
 - JSON with `"status":"ok"` → the API is up; the failure is credentials or rate limiting.
