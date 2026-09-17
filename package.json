@@ -12,10 +12,11 @@
     "server": "tsx watch server/src/server.ts",
     "server:build": "tsc -p server/tsconfig.json",
     "start:server": "node server/dist/server.js",
-    "dev:all": "concurrently \"npm run dev\" \"npm run server\" --names \"frontend,backend\" --prefix-colors \"cyan,magenta\""
+    "dev:express": "concurrently \"vite --mode express\" \"npm run server\" --names \"frontend,backend\" --prefix-colors \"cyan,magenta\"",
+    "dev:all": "concurrently \"npm run dev\" \"npm run server\" --names \"frontend,backend\" --prefix-colors \"cyan,magenta\"",
+    "smoke:api": "tsx scripts/smoke-api.ts"
   },
   "dependencies": {
-    "argon2": "^0.45.1",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.6",
     "dotenv": "^17.4.2",
@@ -24,6 +25,9 @@
     "react": "19.2.8",
     "react-dom": "19.2.8",
     "react-router-dom": "7.18.3"
+  },
+  "optionalDependencies": {
+    "argon2": "^0.45.1"
   },
   "devDependencies": {
     "@tailwindcss/vite": "4.3.3",

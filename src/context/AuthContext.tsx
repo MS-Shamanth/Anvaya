@@ -1,137 +1,170 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
 import type { Role, User } from '../types';
+import { SEED_USERS } from '../data/seed';
 
 /**
- * Authentication Context for Anvaya.
+ * Authentication context for Anvaya.
  *
- * Now integrated with secure backend authentication:
- * - Server-side password hashing with Argon2id
- * - HttpOnly + Secure session cookies
- * - Server-side authorization on every request
- * - Rate limiting on login attempts
- * - CSRF protection via SameSite cookies
+ * Authentication is server-authoritative. The frontend holds user state for the
+ * UI only; every protected operation is validated again on the server.
  *
- * The frontend maintains user state but authentication is server-authoritative.
+ * Two backends implement the same contract:
+ * - local development: server/src (Express, argon2id, express-session)
+ * - deployed (Vercel):  api/ (scrypt, HMAC-signed HttpOnly session cookie)
  */
+
+export interface SignInResult {
+  success: boolean;
+  error?: string;
+  user?: User;
+}
 
 interface AuthValue {
   user: User | null;
   isAuthenticated: boolean;
   isLoading: boolean;
-  signIn: (email: string, password: string) => Promise<{ success: boolean; error?: string }>;
+  signIn: (email: string, password: string) => Promise<SignInResult>;
   signOut: () => Promise<void>;
   refreshUser: () => Promise<void>;
   isRole: (role: Role) => boolean;
-  userById: (id: string) => User | undefined; // For backward compatibility with existing components
+  /** Public directory lookup for display purposes (seller/atelier attribution). */
+  userById: (id: string) => User | undefined;
 }
 
 const AuthContext = createContext<AuthValue | null>(null);
 
+const REQUEST_TIMEOUT_MS = 15_000;
+
 /**
- * Safe user type (without sensitive fields).
+ * Public directory of accounts trading on the exchange. Display metadata only —
+ * no credentials — used to attribute listings to a house. Authentication never
+ * reads from here; that is the backend's job.
  */
-type SafeUser = Omit<User, 'passwordHash'>;
+const DIRECTORY: User[] = SEED_USERS;
+
+/** Reads JSON without throwing when the response is HTML, empty, or truncated. */
+async function readJson(response: Response): Promise<Record<string, unknown> | null> {
+  try {
+    const text = await response.text();
+    if (!text.trim()) return null;
+    return JSON.parse(text) as Record<string, unknown>;
+  } catch {
+    return null;
+  }
+}
+
+function errorFrom(payload: Record<string, unknown> | null, status: number): string {
+  if (payload && typeof payload.error === 'string' && payload.error.trim()) {
+    return payload.error;
+  }
+
+  // A non-JSON body means the request never reached the auth backend — almost
+  // always a missing/misrouted deployment rather than a credentials problem.
+  if (status === 404 || status === 405) {
+    return 'Sign-in service was not found at /api/auth/login. The backend is not deployed for this build.';
+  }
+  if (status >= 500) {
+    return `Sign-in service error (HTTP ${status}). Please try again in a moment.`;
+  }
+  return `Sign-in failed (HTTP ${status}).`;
+}
+
+function fetchWithTimeout(input: string, init: RequestInit = {}): Promise<Response> {
+  // AbortSignal.timeout is not in every target browser; fall back to a controller.
+  const controller = new AbortController();
+  const timer = window.setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
+  return fetch(input, { ...init, signal: controller.signal }).finally(() => {
+    window.clearTimeout(timer);
+  });
+}
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<SafeUser | null>(null);
+  const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  /**
-   * Fetch current authenticated user from backend.
-   */
+  /** Restores session state from the session cookie. */
   const refreshUser = useCallback(async () => {
     try {
-      const response = await fetch('/api/auth/me', {
-        credentials: 'include', // Send cookies
-      });
+      const response = await fetchWithTimeout('/api/auth/me', { credentials: 'include' });
 
       if (response.ok) {
-        const data = await response.json();
-        setUser(data.user);
+        const data = await readJson(response);
+        setUser((data?.user as User | undefined) ?? null);
       } else {
+        // 401 is the normal "not signed in" answer, not an error worth logging.
         setUser(null);
       }
-    } catch (error) {
-      console.error('Failed to fetch user:', error);
+    } catch {
+      // Offline or backend unreachable: stay signed out rather than guessing.
       setUser(null);
     } finally {
       setIsLoading(false);
     }
   }, []);
 
-  /**
-   * Initialize auth state on mount.
-   */
   useEffect(() => {
     refreshUser();
   }, [refreshUser]);
 
-  /**
-   * Sign in with email and password.
-   */
-  const signIn = useCallback(async (email: string, password: string) => {
+  const signIn = useCallback(async (email: string, password: string): Promise<SignInResult> => {
     try {
-      const response = await fetch('/api/auth/login', {
+      const response = await fetchWithTimeout('/api/auth/login', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include', // Send/receive cookies
+        headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+        credentials: 'include',
         body: JSON.stringify({ email, password }),
       });
 
-      const data = await response.json();
+      const data = await readJson(response);
 
-      if (response.ok) {
-        setUser(data.user);
-        return { success: true };
+      if (response.ok && data?.user) {
+        const signedIn = data.user as User;
+        setUser(signedIn);
+        return { success: true, user: signedIn };
       }
 
-      // Handle rate limiting
-      if (response.status === 429) {
-        return { 
-          success: false, 
-          error: data.error || 'Too many login attempts. Please try again later.',
+      if (response.ok && !data?.user) {
+        return {
+          success: false,
+          error: 'Sign-in returned an unexpected response. Please try again.',
         };
       }
 
-      return { 
-        success: false, 
-        error: data.error || 'Login failed. Please try again.',
-      };
+      return { success: false, error: errorFrom(data, response.status) };
     } catch (error) {
-      console.error('Login error:', error);
-      return { 
-        success: false, 
-        error: 'Network error. Please check your connection.',
+      const aborted = error instanceof DOMException && error.name === 'AbortError';
+      return {
+        success: false,
+        error: aborted
+          ? 'Sign-in timed out. Please try again.'
+          : 'Could not reach the sign-in service. Check your connection and try again.',
       };
     }
   }, []);
 
-  /**
-   * Sign out.
-   */
   const signOut = useCallback(async () => {
     try {
-      await fetch('/api/auth/logout', {
-        method: 'POST',
-        credentials: 'include',
-      });
-    } catch (error) {
-      console.error('Logout error:', error);
+      await fetchWithTimeout('/api/auth/logout', { method: 'POST', credentials: 'include' });
+    } catch {
+      // Clearing local state matters more than the round trip succeeding.
     } finally {
       setUser(null);
     }
   }, []);
 
-  const value = useMemo<AuthValue>(() => ({
-    user: user as User | null,
-    isAuthenticated: user !== null,
-    isLoading,
-    signIn,
-    signOut,
-    refreshUser,
-    isRole: (role) => user?.role === role,
-    userById: () => undefined, // Stub - in production, fetch from backend API
-  }), [user, isLoading, signIn, signOut, refreshUser]);
+  const value = useMemo<AuthValue>(
+    () => ({
+      user,
+      isAuthenticated: user !== null,
+      isLoading,
+      signIn,
+      signOut,
+      refreshUser,
+      isRole: (role) => user?.role === role,
+      userById: (id) => DIRECTORY.find((entry) => entry.id === id),
+    }),
+    [user, isLoading, signIn, signOut, refreshUser],
+  );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
@@ -141,3 +174,4 @@ export function useAuth() {
   if (!context) throw new Error('useAuth must be used inside <AuthProvider>');
   return context;
 }
+

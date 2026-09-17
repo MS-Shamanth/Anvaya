@@ -2,24 +2,25 @@
 
 ## Quick Start
 
-### Option 1: Run Both Together (Recommended)
-```bash
-npm run dev:all
-```
-
-This starts both backend (port 3001) and frontend (port 5173) together.
-
-### Option 2: Run Separately
-
-**Terminal 1 - Backend:**
-```bash
-npm run server
-```
-
-**Terminal 2 - Frontend:**
 ```bash
 npm run dev
 ```
+
+One command, one port. The auth API in `api/` is mounted straight into the Vite dev
+server, so `/api/auth/*` works with nothing else running — the same handlers Vercel
+runs in production (see [DEPLOYMENT.md](DEPLOYMENT.md)).
+
+### Optional: use the Express backend instead
+
+`server/` is the argon2id + `express-session` implementation. To run the frontend
+against it:
+
+```bash
+npm run dev:express      # vite (proxying /api → :3001) + the Express server
+```
+
+`npm run server` starts that backend on its own, and `npm run smoke:api` exercises the
+serverless auth contract (login, session, tampering, rate limits) end to end.
 
 ---
 
@@ -137,6 +138,21 @@ Anvaya/
 **Check**: Open browser console - any errors?  
 **Check**: Backend logs - any errors?
 
+### "Could not reach the sign-in service" / "Network error"
+The browser could not get a JSON response from `/api/auth/login`.
+
+**Check**: open `/api/health` in the same origin you are using.
+- JSON with `"status":"ok"` → the API is up; the failure is credentials or rate limiting.
+- HTML → no backend is answering `/api`. Locally, restart `npm run dev`. On Vercel, the
+  functions in `api/` were not deployed — see [DEPLOYMENT.md](DEPLOYMENT.md).
+
+**Check**: if you started the frontend with `npm run dev:express`, the Express server on
+:3001 has to be running too, otherwise the proxy has nothing to talk to.
+
+### Signed out after every refresh on a deployed build
+`SESSION_SECRET` is unset or changed between deploys, so previously issued cookies no
+longer verify. Set a stable 32+ character `SESSION_SECRET` in the hosting environment.
+
 ### Session not persisting
 **Check**: Cookie in DevTools (Application → Cookies)  
 **Check**: HttpOnly flag is set  
@@ -147,19 +163,20 @@ Anvaya/
 ## Development Commands
 
 ```bash
-# Frontend
-npm run dev              # Start frontend dev server
-npm run build            # Build frontend for production
-npm run preview          # Preview production build
-npm run typecheck        # Check TypeScript types
+# App (frontend + api/ handlers in one process)
+npm run dev              # Dev server on :5173, /api served in-process
+npm run build            # Typecheck (src, api, config) + production bundle
+npm run preview          # Preview the built bundle (no /api — deploy for that)
+npm run typecheck        # Types only
 
-# Backend
-npm run server           # Start backend server
-npm run server:build     # Build backend for production
-npm start:server         # Run production backend
+# Serverless auth checks
+npm run smoke:api        # Drives api/auth/* through a local http server
 
-# Both
-npm run dev:all          # Start both concurrently
+# Express backend (optional, argon2id + express-session)
+npm run server           # Backend on :3001
+npm run dev:express      # Vite proxying /api → :3001, plus the backend
+npm run server:build     # Compile the backend
+npm run start:server     # Run the compiled backend
 ```
 
 ---
@@ -229,6 +246,7 @@ See `BACKEND-AUTH-IMPLEMENTATION.md` for production checklist:
 
 ## Documentation
 
+- **DEPLOYMENT.md** - Vercel deployment, required env vars, known limits
 - **PHASE-2-COMPLETE.md** - Complete status report
 - **BACKEND-AUTH-IMPLEMENTATION.md** - Technical implementation details
 - **AUTHENTICATION.md** - Original authentication docs

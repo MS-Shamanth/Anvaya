@@ -9,11 +9,14 @@
 
 export type Role = 'buyer' | 'seller' | 'upcycler';
 
+/**
+ * A user as the frontend sees one. Credentials never reach the client: password
+ * hashes live only in the backend's user store (api/_lib/users.ts, server/src/models).
+ */
 export interface User {
   id: string;
   name: string;
   email: string;
-  passwordHash: string;
   role: Role;
   /** Company, maison, or atelier the account trades under. */
   org: string;

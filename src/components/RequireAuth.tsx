@@ -14,8 +14,20 @@ export function RequireAuth({ children, role }: { children: ReactNode; role?: Ro
   const location = useLocation();
 
   if (isLoading) {
-    // Show loading state while checking authentication
-    return <div>Loading...</div>;
+    // Session is still being verified against /api/auth/me. Rendering a redirect
+    // here would bounce a signed-in user to /enter on every hard refresh.
+    return (
+      <div
+        role="status"
+        aria-live="polite"
+        className="flex min-h-dvh flex-col items-center justify-center gap-4"
+      >
+        <span className="loading-spinner inline-block h-8 w-8" />
+        <p className="text-mist-500 text-[0.6rem] tracking-[0.28em] uppercase">
+          Verifying your session
+        </p>
+      </div>
+    );
   }
 
   if (!user) {

@@ -3,17 +3,18 @@ import type { Listing, Order, RenewalProject, User } from '../types';
 const daysAgo = (n: number) => new Date(Date.now() - n * 86_400_000).toISOString();
 
 /**
- * Demo accounts. Phase 1 ships the three roles only.
+ * Public directory of accounts trading on the exchange — display metadata used to
+ * attribute listings to a house.
  *
- * SECURITY: Frontend authentication with password validation.
- * Passwords are hashed in production. Demo password for all accounts: "anvaya2024"
+ * No credentials here by design. Password hashes live only in the backend user
+ * stores (api/_lib/users.ts for the deployed functions, server/src/models/User.ts
+ * for the local Express server), and sign-in is verified there.
  */
 export const SEED_USERS: User[] = [
   {
     id: 'b-aditi',
     name: 'Aditi Rao',
     email: 'aditi@anvaya.exchange',
-    passwordHash: '$2a$10$demo.hash.buyer', // In production: bcrypt hash
     role: 'buyer',
     org: 'Rao Family Office',
     initials: 'AR',
@@ -29,7 +30,6 @@ export const SEED_USERS: User[] = [
     id: 's-kabir',
     name: 'Kabir Mehta',
     email: 'kabir@anvaya.exchange',
-    passwordHash: '$2a$10$demo.hash.seller', // In production: bcrypt hash
     role: 'seller',
     org: 'Mehta Luxury Consignment',
     initials: 'KM',
@@ -40,7 +40,6 @@ export const SEED_USERS: User[] = [
     id: 'u-noor',
     name: 'Noor Sheikh',
     email: 'noor@anvaya.exchange',
-    passwordHash: '$2a$10$demo.hash.upcycler', // In production: bcrypt hash
     role: 'upcycler',
     org: 'Atelier Noor',
     initials: 'NS',
@@ -53,7 +52,6 @@ export const SEED_USERS: User[] = [
     id: 's-colaba',
     name: 'Rhea Fernandes',
     email: 'rhea@colabavault.in',
-    passwordHash: '$2a$10$demo.hash.colaba',
     role: 'seller',
     org: 'The Colaba Vault',
     initials: 'RF',
@@ -64,7 +62,6 @@ export const SEED_USERS: User[] = [
     id: 's-verve',
     name: 'Dev Khanna',
     email: 'dev@ververetail.in',
-    passwordHash: '$2a$10$demo.hash.verve',
     role: 'seller',
     org: 'Verve Retail Group',
     initials: 'DK',
@@ -75,7 +72,6 @@ export const SEED_USERS: User[] = [
     id: 's-sudarshan',
     name: 'Ira Sudarshan',
     email: 'ira@sudarshanheritage.in',
-    passwordHash: '$2a$10$demo.hash.sudarshan',
     role: 'seller',
     org: 'Sudarshan Heritage',
     initials: 'IS',

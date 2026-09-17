@@ -148,17 +148,17 @@ function Hero() {
       <div className="relative mx-auto w-full max-w-[1400px] px-5 sm:px-8">
         <div className="mx-auto max-w-4xl text-center">
           <Reveal direction="scale" duration={1100}>
-            <div className="flex justify-center">
+            <div className="flex justify-center glow-gold">
               <Monogram size={112} />
             </div>
           </Reveal>
 
           <Reveal delay={220}>
             {/* shimmer sweeps a highlight across the logotype on a loop */}
-            <h1 className="shimmer font-display mt-8 text-5xl leading-none tracking-[0.32em] sm:text-7xl">
+            <h1 className="shimmer font-display mt-8 text-5xl leading-none tracking-[0.32em] sm:text-7xl breathe">
               ANVAYA
             </h1>
-            <p className="text-mist-400 mt-4 text-[0.66rem] tracking-[0.44em] uppercase sm:text-[0.78rem]">
+            <p className="text-mist-400 mt-4 text-[0.66rem] tracking-[0.44em] uppercase sm:text-[0.78rem] shimmer-text">
               Premium&nbsp;·&nbsp;Luxury&nbsp;Exchange
             </p>
           </Reveal>
@@ -188,11 +188,11 @@ function Hero() {
           <Reveal delay={1000}>
             <div className="mt-10">
               <Link to="/enter">
-                <Button variant="gold" size="lg">
+                <Button variant="gold" size="lg" className="btn-magnetic">
                   Enter the exchange
                 </Button>
               </Link>
-              <p className="text-mist-500 mt-5 text-[0.68rem]">
+              <p className="text-mist-500 mt-5 text-[0.68rem] shimmer-text">
                 Sign in with your credentials to access the platform.
               </p>
             </div>
@@ -206,9 +206,9 @@ function Hero() {
               { label: 'Pieces on the exchange', value: 21, suffix: '' },
               { label: 'Recovered this quarter', value: 4.9, prefix: '₹', suffix: ' Cr' },
               { label: 'Renewal rate', value: 68, suffix: '%' },
-            ].map((stat) => (
-              <div key={stat.label} className="plate px-4 py-5 text-center">
-                <p className="text-gilded font-display text-2xl sm:text-4xl">
+            ].map((stat, i) => (
+              <div key={stat.label} className={`plate px-4 py-5 text-center lift card-animate stagger-${i + 1} glass`}>
+                <p className="text-gilded font-display text-2xl sm:text-4xl glow-gold">
                   {stat.prefix}
                   <Counter
                     to={stat.value}
@@ -216,7 +216,7 @@ function Hero() {
                   />
                   {stat.suffix}
                 </p>
-                <p className="text-mist-500 mt-2 text-[0.58rem] tracking-[0.18em] uppercase">
+                <p className="text-mist-500 mt-2 text-[0.58rem] tracking-[0.18em] uppercase shimmer-text">
                   {stat.label}
                 </p>
               </div>
@@ -256,22 +256,22 @@ function RoleSection() {
       <div className="mt-14 grid gap-6 lg:grid-cols-3">
         {ROLE_CARDS.map((card, i) => (
           <Reveal key={card.role} delay={i * 130}>
-            <Tilt className="plate group h-full p-7" strength={5}>
+            <Tilt className={`plate group h-full p-7 lift card-animate stagger-${i + 1}`} strength={5}>
               <div className="flex h-full flex-col">
-                <div className="text-gold-400/85 group-hover:text-gold-200 size-12 transition-colors duration-500">
+                <div className="text-gold-400/85 group-hover:text-gold-200 size-12 transition-colors duration-500 breathe">
                   {card.glyph}
                 </div>
 
-                <p className="text-mist-500 mt-6 text-[0.58rem] tracking-[0.26em] uppercase">
+                <p className="text-mist-500 mt-6 text-[0.58rem] tracking-[0.26em] uppercase shimmer-text">
                   {card.title}
                 </p>
-                <h3 className="text-gilded mt-2 text-2xl">{card.line}</h3>
+                <h3 className="text-gilded mt-2 text-2xl holographic">{card.line}</h3>
                 <p className="text-mist-300 mt-4 text-[0.86rem] leading-relaxed">{card.body}</p>
 
                 <ul className="mt-6 space-y-2.5">
                   {card.actions.map((action) => (
                     <li key={action} className="text-mist-400 flex gap-2.5 text-[0.78rem] leading-relaxed">
-                      <span className="text-gold-500 mt-1 shrink-0">◇</span>
+                      <span className="text-gold-500 mt-1 shrink-0 pulse-dot">◇</span>
                       {action}
                     </li>
                   ))}
@@ -279,7 +279,7 @@ function RoleSection() {
 
                 <Link
                   to="/enter"
-                  className="btn-ghost mt-7 block w-full rounded-full py-3 text-center text-[0.7rem] tracking-[0.18em] uppercase"
+                  className="btn-ghost btn-magnetic mt-7 block w-full rounded-full py-3 text-center text-[0.7rem] tracking-[0.18em] uppercase"
                 >
                   Sign in
                 </Link>
@@ -323,12 +323,12 @@ function LoopSection() {
                 <div
                   className={`lg:flex lg:items-center lg:gap-10 ${i % 2 === 0 ? '' : 'lg:flex-row-reverse'}`}
                 >
-                  <div className="plate lift group relative flex-1 p-6 lg:p-7">
+                  <div className={`plate lift group relative flex-1 p-6 lg:p-7 card-animate glass stagger-${(i % 6) + 1}`}>
                     <div className="flex items-baseline gap-4">
-                      <span className="text-gold-500/50 font-display group-hover:text-gold-300 text-4xl transition-colors duration-500">
+                      <span className="text-gold-500/50 font-display group-hover:text-gold-300 text-4xl transition-colors duration-500 glow-gold">
                         {item.step}
                       </span>
-                      <h3 className="text-gilded text-2xl">{item.title}</h3>
+                      <h3 className="text-gilded text-2xl shimmer-text">{item.title}</h3>
                     </div>
                     <p className="text-mist-300 mt-3 text-[0.86rem] leading-relaxed">{item.body}</p>
                   </div>
@@ -394,18 +394,20 @@ function IntelligenceSection() {
           </Reveal>
 
           <Reveal direction="left" delay={140}>
-            <Tilt className="plate p-7" strength={4}>
+            <Tilt className="plate p-7 glass lift card-animate" strength={4}>
               <div className="flex items-start justify-between gap-4">
                 <div>
-                  <p className="text-gold-400/85 text-[0.58rem] tracking-[0.24em] uppercase">
+                  <p className="text-gold-400/85 text-[0.58rem] tracking-[0.24em] uppercase shimmer-text">
                     {sample.brand}
                   </p>
-                  <h3 className="text-mist-100 mt-1.5 text-xl">{sample.title}</h3>
+                  <h3 className="text-mist-100 mt-1.5 text-xl holographic">{sample.title}</h3>
                   <p className="text-mist-500 mt-1 text-[0.7rem]">
                     Asking {money(sample.askingPrice)} · retail {money(sample.retailPrice)}
                   </p>
                 </div>
-                <HealthMeter health={health} size={76} showLabel={false} />
+                <div className="glow-gold">
+                  <HealthMeter health={health} size={76} showLabel={false} />
+                </div>
               </div>
 
               <div className="border-gold-500/12 mt-6 border-t pt-6">
@@ -506,24 +508,26 @@ function ClosingSection() {
     <section className="relative overflow-hidden py-28">
       <div className="relative mx-auto max-w-[1400px] px-5 sm:px-8">
         <Reveal direction="scale">
-          <div className="plate relative overflow-hidden px-6 py-20 text-center sm:px-16">
+          <div className="plate relative overflow-hidden px-6 py-20 text-center sm:px-16 glass glow-gold">
             <GoldDust density={0.7} />
             <div className="relative">
-              <Monogram size={72} animate={false} />
+              <div className="glow-gold breathe">
+                <Monogram size={72} animate={false} />
+              </div>
               <h2 className="text-mist-100 mt-8 text-4xl leading-tight sm:text-[3.2rem]">
-                <span className="text-gilded">Excess is not a loss.</span>
+                <span className="text-gilded shimmer-text">Excess is not a loss.</span>
                 <br />
-                It is unpriced revenue.
+                <span className="holographic">It is unpriced revenue.</span>
               </h2>
               <p className="text-mist-300 mx-auto mt-6 max-w-xl text-sm leading-relaxed sm:text-base">
                 Phase 1 is live: the Premium Exchange, three roles, and the full AI layer. B2B, B2C,
                 and auction channels follow.
               </p>
               <div className="mt-10 flex flex-wrap justify-center gap-3">
-                <ButtonLink to="/enter" variant="gold" size="lg">
+                <ButtonLink to="/enter" variant="gold" size="lg" className="btn-magnetic">
                   Choose a role
                 </ButtonLink>
-                <ButtonLink to="/browse" variant="ghost" size="lg">
+                <ButtonLink to="/browse" variant="ghost" size="lg" className="btn-magnetic">
                   Browse the exchange
                 </ButtonLink>
               </div>

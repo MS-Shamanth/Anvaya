@@ -18,7 +18,7 @@ export function ItemCard({ listing, index = 0 }: { listing: Listing; index?: num
   const below = listing.askingPrice < listing.retailPrice;
 
   return (
-    <Tilt className="plate group h-full overflow-hidden" strength={6}>
+    <Tilt className="plate group h-full overflow-hidden lift image-zoom" strength={6}>
       <article className="flex h-full flex-col">
         <Link
           to={`/piece/${listing.id}`}
@@ -45,7 +45,7 @@ export function ItemCard({ listing, index = 0 }: { listing: Listing; index?: num
           </div>
 
           {match >= 55 && (
-            <div className="absolute top-3 right-3">
+            <div className="absolute top-3 right-3 glow-gold">
               <MatchBadge score={match} />
             </div>
           )}
@@ -54,11 +54,11 @@ export function ItemCard({ listing, index = 0 }: { listing: Listing; index?: num
         <div className="flex flex-1 flex-col p-5">
           <div className="flex items-start justify-between gap-3">
             <div className="min-w-0">
-              <p className="text-gold-400/85 text-[0.6rem] tracking-[0.26em] uppercase">
+              <p className="text-gold-400/85 text-[0.6rem] tracking-[0.26em] uppercase shimmer-text">
                 {listing.brand}
               </p>
               <h3 className="text-mist-100 group-hover:text-gold-100 mt-1.5 truncate text-lg transition-colors duration-300">
-                <Link to={`/piece/${listing.id}`}>{listing.title}</Link>
+                <Link to={`/piece/${listing.id}`} className="link-gold">{listing.title}</Link>
               </h3>
             </div>
 
@@ -66,9 +66,9 @@ export function ItemCard({ listing, index = 0 }: { listing: Listing; index?: num
               onClick={() => toggleWatch(listing.id)}
               aria-pressed={watched}
               aria-label={watched ? 'Remove from watchlist' : 'Add to watchlist'}
-              className={`shrink-0 rounded-full border p-2 transition-all duration-300 ${
+              className={`shrink-0 rounded-full border p-2 transition-all duration-300 btn-magnetic ${
                 watched
-                  ? 'border-gold-400/70 bg-gold-500/18 text-gold-200'
+                  ? 'border-gold-400/70 bg-gold-500/18 text-gold-200 glow-gold'
                   : 'border-gold-500/18 text-mist-400 hover:border-gold-400/60 hover:text-gold-200'
               }`}
             >
@@ -88,7 +88,7 @@ export function ItemCard({ listing, index = 0 }: { listing: Listing; index?: num
 
           <div className="hairline mt-auto flex items-end justify-between gap-3 border-t pt-4">
             <div>
-              <p className="text-gilded font-display text-2xl">{money(listing.askingPrice)}</p>
+              <p className="text-gilded font-display text-2xl shimmer-text">{money(listing.askingPrice)}</p>
               <p className="text-mist-500 mt-1 text-[0.65rem] tracking-[0.1em]">
                 {below ? (
                   <>
@@ -110,7 +110,7 @@ export function ItemCard({ listing, index = 0 }: { listing: Listing; index?: num
         {/* Gold sweep across the bottom edge on hover. */}
         <span
           aria-hidden
-          className="bg-gilded absolute inset-x-0 bottom-0 h-px origin-left scale-x-0 transition-transform duration-700 ease-out group-hover:scale-x-100"
+          className="bg-gilded absolute inset-x-0 bottom-0 h-px origin-left scale-x-0 transition-transform duration-700 ease-out group-hover:scale-x-100 glow-gold"
           style={{ transitionDelay: `${index * 20}ms` }}
         />
       </article>
