@@ -79,9 +79,7 @@ export default function Enter() {
         <div className="relative mx-auto w-full max-w-[1200px] px-5 sm:px-8">
           <Reveal direction="scale">
             <div className="flex flex-col items-center text-center">
-              <div className="glow-gold">
-                <Monogram size={68} />
-              </div>
+              <Monogram size={68} className="glow-mark" />
               <h1 className="text-mist-100 mt-7 text-4xl sm:text-5xl">
                 <RevealWords text="Choose your vantage point" className="holographic" />
               </h1>

@@ -594,8 +594,26 @@
   }
 }
 
+/* Box glow. Traces the element's rectangle, so only use it on plates, pills, and
+   other boxes — on a full-width wrapper it reads as a glowing band. */
 @utility glow-gold {
   animation: glow-pulse 3s ease-in-out infinite;
+}
+
+@keyframes mark-glow-pulse {
+  0%, 100% {
+    filter: drop-shadow(0 0 10px rgb(201 162 75 / 0.35));
+  }
+  50% {
+    filter: drop-shadow(0 0 22px rgb(233 195 122 / 0.55));
+  }
+}
+
+/* Glow for marks and meters: drop-shadow follows the artwork's own silhouette,
+   so a circular logo halos instead of sitting inside a lit rectangle. Apply it to
+   the SVG itself, not to a wrapper. */
+@utility glow-mark {
+  animation: mark-glow-pulse 3s ease-in-out infinite;
 }
 
 @keyframes text-shimmer {

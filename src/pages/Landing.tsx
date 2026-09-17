@@ -148,8 +148,8 @@ function Hero() {
       <div className="relative mx-auto w-full max-w-[1400px] px-5 sm:px-8">
         <div className="mx-auto max-w-4xl text-center">
           <Reveal direction="scale" duration={1100}>
-            <div className="flex justify-center glow-gold">
-              <Monogram size={112} />
+            <div className="flex justify-center">
+              <Monogram size={112} className="glow-mark" />
             </div>
           </Reveal>
 
@@ -208,7 +208,7 @@ function Hero() {
               { label: 'Renewal rate', value: 68, suffix: '%' },
             ].map((stat, i) => (
               <div key={stat.label} className={`plate px-4 py-5 text-center lift card-animate stagger-${i + 1} glass`}>
-                <p className="text-gilded font-display text-2xl sm:text-4xl glow-gold">
+                <p className="text-gilded font-display text-2xl sm:text-4xl">
                   {stat.prefix}
                   <Counter
                     to={stat.value}
@@ -325,7 +325,7 @@ function LoopSection() {
                 >
                   <div className={`plate lift group relative flex-1 p-6 lg:p-7 card-animate glass stagger-${(i % 6) + 1}`}>
                     <div className="flex items-baseline gap-4">
-                      <span className="text-gold-500/50 font-display group-hover:text-gold-300 text-4xl transition-colors duration-500 glow-gold">
+                      <span className="text-gold-500/50 font-display group-hover:text-gold-300 text-4xl transition-colors duration-500">
                         {item.step}
                       </span>
                       <h3 className="text-gilded text-2xl shimmer-text">{item.title}</h3>
@@ -405,7 +405,7 @@ function IntelligenceSection() {
                     Asking {money(sample.askingPrice)} · retail {money(sample.retailPrice)}
                   </p>
                 </div>
-                <div className="glow-gold">
+                <div className="glow-mark">
                   <HealthMeter health={health} size={76} showLabel={false} />
                 </div>
               </div>
@@ -508,12 +508,14 @@ function ClosingSection() {
     <section className="relative overflow-hidden py-28">
       <div className="relative mx-auto max-w-[1400px] px-5 sm:px-8">
         <Reveal direction="scale">
-          <div className="plate relative overflow-hidden px-6 py-20 text-center sm:px-16 glass glow-gold">
+          <div className="plate relative overflow-hidden px-6 py-20 text-center sm:px-16 glass">
             <GoldDust density={0.7} />
             <div className="relative">
-              <div className="glow-gold breathe">
-                <Monogram size={72} animate={false} />
-              </div>
+              {/* breathe animates transform, glow-mark animates filter — they have
+                  to sit on different elements or the shorthand overrides one. */}
+              <span className="breathe inline-block">
+                <Monogram size={72} animate={false} className="glow-mark" />
+              </span>
               <h2 className="text-mist-100 mt-8 text-4xl leading-tight sm:text-[3.2rem]">
                 <span className="text-gilded shimmer-text">Excess is not a loss.</span>
                 <br />
